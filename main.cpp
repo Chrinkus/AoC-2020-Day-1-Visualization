@@ -47,6 +47,66 @@ Fl_Color get_tree_color(const char ch)
     }
 }
 
+class Tree_logo : public Fl_Box {
+public:
+    Tree_logo(int xx, int yy, int ww, int hh);
+
+    void draw() override;
+private:
+    const int OFFSET_X = 20;
+    const int OFFSET_Y = 20;
+    const int CHAR_H = 24;
+    const int CHAR_W = 14;
+};
+
+Tree_logo::Tree_logo(int xx, int yy, int ww, int hh)
+    : Fl_Box{xx, yy, ww, hh}
+{
+    box(FL_FLAT_BOX);
+    color(FL_BLACK);
+
+    Fl_Font old_font = fl_font();
+    fl_font(FL_COURIER, CHAR_H);
+    const int char_w = fl_width('#');
+    fl_font(old_font, CHAR_H);
+
+    const int cols = AOC_LOGO.front().size();
+    const int rows = AOC_LOGO.size();
+    const int new_width = OFFSET_X * 2 + cols * char_w;
+    const int new_height = OFFSET_Y * 2 + rows * CHAR_H;
+    const int new_x = x() - new_width / 2;
+    const int new_y = y() - new_height / 2;
+
+    position(new_x, new_y);
+    size(new_width, new_height);
+}
+
+void Tree_logo::draw()
+{
+    const int INNER_X = x() + OFFSET_X;
+    const int INNER_Y = y() + OFFSET_Y;
+
+    fl_color(FL_WHITE);
+
+    fl_font(FL_COURIER, CHAR_H);
+
+    int xx = 0;
+    int yy = 0;
+    char c[2] = " ";
+    for (const auto& s : AOC_LOGO) {
+        for (const auto ch : s) {
+            c[0] = ch;
+            if (ch != ' ') {
+                fl_color(get_tree_color(ch));
+                fl_draw(c, INNER_X + xx * CHAR_W, INNER_Y + yy * CHAR_H);
+            }
+            ++xx;
+        }
+        xx = 0;
+        ++yy;
+    }
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 class Data_box : public Fl_Box {
@@ -164,7 +224,9 @@ const char* Calculation_row::get_symbol() const
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-class Director;
+class Director;     // forward decl
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 class Viewport : public Fl_Group {
 private:
@@ -209,19 +271,14 @@ private:
     }
 };
 
-enum class State {
-    START,
-    CHECK_BASE,
-    CHECK_SUM,
-    NEW_I,
-    NEW_J,
-    NEW_K,
-    WIN,
-    PROBLEM
-};
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 class Director {
 public:
+    enum class State {
+        START, CHECK_BASE, CHECK_SUM, NEW_I, NEW_J, NEW_K, WIN, PROBLEM
+    };
+
     Director() = default;
 
     void query(Viewport* vpp);
@@ -411,18 +468,6 @@ void Viewport::make_yellow(int i)
     p->color_change(FL_YELLOW, FL_BLACK);
 }
 
-void Viewport::make_red(int i)
-{
-    auto p = dynamic_cast<Data_box*>(child(i));
-    p->color_change(FL_RED, FL_BLACK);
-}
-
-void Viewport::make_green(int i)
-{
-    auto p = dynamic_cast<Data_box*>(child(i));
-    p->color_change(FL_GREEN, FL_BLACK);
-}
-
 bool Viewport::step()
 {
     dir->query(this);
@@ -450,116 +495,11 @@ void Viewport::position_inputs()
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-class Tree_logo : public Fl_Box {
-public:
-    Tree_logo(int xx, int yy, int ww, int hh)
-        : Fl_Box{xx, yy, ww, hh}
-    {
-        box(FL_FLAT_BOX);
-        color(FL_BLACK);
-
-        Fl_Font old_font = fl_font();
-        fl_font(FL_COURIER, CHAR_H);
-        const int char_w = fl_width('#');
-        fl_font(old_font, CHAR_H);
-
-        const int cols = AOC_LOGO.front().size();
-        const int rows = AOC_LOGO.size();
-        const int new_width = OFFSET_X * 2 + cols * char_w;
-        const int new_height = OFFSET_Y * 2 + rows * CHAR_H;
-        const int new_x = x() - new_width / 2;
-        const int new_y = y() - new_height / 2;
-
-        position(new_x, new_y);
-        size(new_width, new_height);
-    }
-
-    void draw() override
-    {
-        const int INNER_X = x() + OFFSET_X;
-        const int INNER_Y = y() + OFFSET_Y;
-
-        fl_color(FL_WHITE);
-
-        fl_font(FL_COURIER, CHAR_H);
-
-        int xx = 0;
-        int yy = 0;
-        char c[2] = " ";
-        for (const auto& s : AOC_LOGO) {
-            for (const auto ch : s) {
-                c[0] = ch;
-                if (ch != ' ') {
-                    fl_color(get_tree_color(ch));
-                    fl_draw(c, INNER_X + xx * CHAR_W, INNER_Y + yy * CHAR_H);
-                }
-                ++xx;
-            }
-            xx = 0;
-            ++yy;
-        }
-    }
-private:
-    const int OFFSET_X = 20;
-    const int OFFSET_Y = 20;
-    const int CHAR_H = 24;
-    const int CHAR_W = 14;
-};
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
 class Title : public Fl_Group {
 public:
-    Title(int xx, int yy, int ww, int hh, Viewport* vp)
-        : Fl_Group{xx, yy, ww, hh}, vpp{vp}
-    {
-        constexpr int OFFSET_X = 20;
-        constexpr int OFFSET_Y = 20;
-        const int XC = w() / 2;
-        const int YC = h() / 2;
-        const int TITLE_W = w() - 2 * OFFSET_X;
-        const int TITLE_H = 48;
-        const int TITLE_SZ = 40;
-        const int BUTT_W = 120;
-        const int BUTT_H = 48;
-        const int BUTT_SZ = 28;
-        const int BUTT_X = XC - BUTT_W / 2;
-        const int BUTT_Y = h() - 2 * OFFSET_Y - BUTT_H;
-        const int DAY_H = 40;
-        const int DAY_SZ = 36;
-        const int DAY_Y = BUTT_Y - 2 * OFFSET_Y - DAY_H;
+    Title(int xx, int yy, int ww, int hh, Viewport* vp);
 
-        auto title = new Fl_Box{OFFSET_X, OFFSET_Y, TITLE_W, TITLE_H, EVENT};
-        title->box(FL_FLAT_BOX);
-        title->color(FL_BLACK);
-        title->labelcolor(FL_WHITE);
-        title->labelfont(FL_BOLD);
-        title->labelsize(TITLE_SZ);
-
-        auto butt = new Fl_Button{BUTT_X, BUTT_Y, BUTT_W, BUTT_H, "Start"};
-        butt->box(FL_FLAT_BOX);
-        butt->color(FL_WHITE);
-        butt->labelsize(BUTT_SZ);
-        butt->labelfont(FL_BOLD);
-        butt->labelcolor(FL_BLACK);
-        butt->callback(start_cb, static_cast<void*>(this));
-
-        [[maybe_unused]] auto tree = new Tree_logo{XC, YC - 2 * OFFSET_Y, 0, 0};
-
-        auto day = new Fl_Box{OFFSET_X, DAY_Y, TITLE_W, DAY_H, DAY};
-        day->box(FL_FLAT_BOX);
-        day->color(FL_BLACK);
-        day->labelsize(DAY_SZ);
-        day->labelfont(FL_BOLD);
-        day->labelcolor(FL_WHITE);
-
-        end();
-    }
-
-    void draw() override
-    {
-        Fl_Group::draw();
-    }
+    void draw() override    { Fl_Group::draw(); }
 
 private:
     Viewport* vpp;
@@ -570,25 +510,58 @@ private:
         p->start();
     }
 
-    void start()
-    {
-        hide();
-        vpp->start();
-    }
+    void start()    { hide(); vpp->start(); }
 };
 
+Title::Title(int xx, int yy, int ww, int hh, Viewport* vp)
+    : Fl_Group{xx, yy, ww, hh}, vpp{vp}
+{
+    constexpr int OFFSET_X = 20;
+    constexpr int OFFSET_Y = 20;
+    const int XC = w() / 2;
+    const int YC = h() / 2;
+    const int TITLE_W = w() - 2 * OFFSET_X;
+    const int TITLE_H = 48;
+    const int TITLE_SZ = 40;
+    const int BUTT_W = 120;
+    const int BUTT_H = 48;
+    const int BUTT_SZ = 28;
+    const int BUTT_X = XC - BUTT_W / 2;
+    const int BUTT_Y = h() - 2 * OFFSET_Y - BUTT_H;
+    const int DAY_H = 40;
+    const int DAY_SZ = 36;
+    const int DAY_Y = BUTT_Y - 2 * OFFSET_Y - DAY_H;
+
+    auto title = new Fl_Box{OFFSET_X, OFFSET_Y, TITLE_W, TITLE_H, EVENT};
+    title->box(FL_FLAT_BOX);
+    title->color(FL_BLACK);
+    title->labelcolor(FL_WHITE);
+    title->labelfont(FL_BOLD);
+    title->labelsize(TITLE_SZ);
+
+    auto butt = new Fl_Button{BUTT_X, BUTT_Y, BUTT_W, BUTT_H, "Start"};
+    butt->box(FL_FLAT_BOX);
+    butt->color(FL_WHITE);
+    butt->labelsize(BUTT_SZ);
+    butt->labelfont(FL_BOLD);
+    butt->labelcolor(FL_BLACK);
+    butt->callback(start_cb, static_cast<void*>(this));
+
+    [[maybe_unused]] auto tree = new Tree_logo{XC, YC - 2 * OFFSET_Y, 0, 0};
+
+    auto day = new Fl_Box{OFFSET_X, DAY_Y, TITLE_W, DAY_H, DAY};
+    day->box(FL_FLAT_BOX);
+    day->color(FL_BLACK);
+    day->labelsize(DAY_SZ);
+    day->labelfont(FL_BOLD);
+    day->labelcolor(FL_WHITE);
+
+    end();
+}
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 int main(int argc, char* argv[])
 {
-    /*
-    for (const auto& s : AOC_LOGO) {
-        std::cout << s << '\n';
-    }
-    std::cout << EVENT << '\n';
-    std::cout << DAY << '\n';
-    */
-
     auto win = new Fl_Double_Window{720, 600, "AoC 2020 Day 1"};
     win->color(FL_BLACK);
     auto vp = new Viewport{0, 0, win->w(), win->h()};
