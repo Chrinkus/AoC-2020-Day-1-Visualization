@@ -150,7 +150,7 @@ Calculation_row::Calculation_row(int xx, int yy, int ww, int hh, Calc cc)
 
 Data_box* Calculation_row::get_box(int i)
 {
-    return reinterpret_cast<Data_box*>(child(i));
+    return dynamic_cast<Data_box*>(child(i));
 }
 
 const char* Calculation_row::get_symbol() const
@@ -310,9 +310,9 @@ void Director::query(Viewport* vpp)
 
 int Viewport::check_sum(int i, int j, int k) const
 {
-    auto n = reinterpret_cast<Data_box*>(child(i))->value();
-    auto m = reinterpret_cast<Data_box*>(child(j))->value();
-    auto l = reinterpret_cast<Data_box*>(child(k))->value();
+    auto n = dynamic_cast<Data_box*>(child(i))->value();
+    auto m = dynamic_cast<Data_box*>(child(j))->value();
+    auto l = dynamic_cast<Data_box*>(child(k))->value();
     auto sum = n + m + l;
 
     sum_row->get_box(0)->change_value(n);
@@ -389,37 +389,37 @@ void Viewport::done()
 
 void Viewport::make_plain(int i)
 {
-    auto p = reinterpret_cast<Data_box*>(child(i));
+    auto p = dynamic_cast<Data_box*>(child(i));
     p->color_change(FL_BLACK, FL_WHITE);
 }
 
 void Viewport::make_cyan(int i)
 {
-    auto p = reinterpret_cast<Data_box*>(child(i));
+    auto p = dynamic_cast<Data_box*>(child(i));
     p->color_change(FL_CYAN, FL_BLACK);
 }
 
 void Viewport::make_magenta(int i)
 {
-    auto p = reinterpret_cast<Data_box*>(child(i));
+    auto p = dynamic_cast<Data_box*>(child(i));
     p->color_change(FL_MAGENTA, FL_BLACK);
 }
 
 void Viewport::make_yellow(int i)
 {
-    auto p = reinterpret_cast<Data_box*>(child(i));
+    auto p = dynamic_cast<Data_box*>(child(i));
     p->color_change(FL_YELLOW, FL_BLACK);
 }
 
 void Viewport::make_red(int i)
 {
-    auto p = reinterpret_cast<Data_box*>(child(i));
+    auto p = dynamic_cast<Data_box*>(child(i));
     p->color_change(FL_RED, FL_BLACK);
 }
 
 void Viewport::make_green(int i)
 {
-    auto p = reinterpret_cast<Data_box*>(child(i));
+    auto p = dynamic_cast<Data_box*>(child(i));
     p->color_change(FL_GREEN, FL_BLACK);
 }
 
