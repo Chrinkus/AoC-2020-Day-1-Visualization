@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\seesc\OneDrive\Projects\aoc-20-01-vis\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\seesc\OneDrive\Projects\aoc-20-01-vis\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{6FF2C2F3-0AA9-3E0E-8DC4-FF97154F58D2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
