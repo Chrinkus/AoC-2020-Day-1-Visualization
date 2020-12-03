@@ -11,6 +11,12 @@ else()
     add_compile_options(-Wextra -Wall -Wpedantic)
 endif()
 
+if(APPLE)
+    # This is where a CMake installation of FLTK puts stuff on a Mac
+    set(FLTK_DIR "/usr/local/FLTK/.framework/Resources/CMake/")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework Cocoa")
+endif()
+
 find_package(FLTK REQUIRED NO_MODULE)
 include_directories(${FLTK_INCLUDE_DIRS})
 
